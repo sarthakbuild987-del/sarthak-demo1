@@ -4,358 +4,783 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sarthak Dwivedi | Developer</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #a78bfa;
+      --purple-dark: #7c3aed;
+      --teal: #34d399;
+      --coral: #fb923c;
+      --pink: #f472b6;
+      --amber: #fbbf24;
+      --bg: #080808;
+      --card-bg: #0f0f0f;
+      --border: #1a1a1a;
+    }
+
+    html { scroll-behavior: smooth; }
 
     body {
       font-family: 'Inter', sans-serif;
-      background: #0f0f0f;
+      background: var(--bg);
       color: #f0f0f0;
-      min-height: 100vh;
+      overflow-x: hidden;
     }
 
+    /* ── CANVAS PARTICLES ── */
+    #particleCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── CURSOR ── */
+    .cursor {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--purple);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform 0.1s, width 0.2s, height 0.2s, opacity 0.2s;
+      mix-blend-mode: screen;
+    }
+
+    .cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(167,139,250,0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: left 0.12s ease, top 0.12s ease, width 0.3s, height 0.3s;
+    }
+
+    /* ── NAV ── */
     nav {
+      position: sticky; top: 0; z-index: 100;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.2rem 2rem;
-      border-bottom: 1px solid #222;
+      padding: 1rem 2.5rem;
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
     }
 
     .nav-logo {
-      font-size: 16px;
-      font-weight: 600;
-      color: #a78bfa;
+      font-size: 15px; font-weight: 600;
+      color: var(--purple);
+      letter-spacing: -0.3px;
     }
 
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-    }
+    .nav-links { display: flex; gap: 1.8rem; }
 
     .nav-links a {
-      font-size: 14px;
-      color: #888;
+      font-size: 13px; color: #444;
       text-decoration: none;
       transition: color 0.2s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -3px; left: 0;
+      width: 0; height: 1px;
+      background: var(--purple);
+      transition: width 0.3s;
     }
 
     .nav-links a:hover { color: #f0f0f0; }
+    .nav-links a:hover::after { width: 100%; }
 
+    /* ── HERO ── */
     .hero {
+      position: relative; z-index: 2;
       text-align: center;
-      padding: 5rem 2rem 3rem;
+      padding: 7rem 2rem 5rem;
     }
 
     .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #1e1a3a;
-      color: #a78bfa;
-      font-size: 13px;
-      font-weight: 500;
-      padding: 5px 14px;
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #110d24;
+      color: var(--purple);
+      font-size: 12px; font-weight: 500;
+      padding: 6px 16px;
       border-radius: 999px;
-      border: 1px solid #3c3489;
+      border: 1px solid #2d2060;
       margin-bottom: 2rem;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--teal);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:0.4; transform:scale(1.4); }
     }
 
     .hero h1 {
-      font-size: 52px;
-      font-weight: 600;
-      line-height: 1.15;
+      font-size: 58px; font-weight: 600;
+      line-height: 1.1;
       margin-bottom: 1.5rem;
+      animation: fadeUp 0.7s ease 0.1s both;
     }
 
-    .purple { color: #a78bfa; }
-    .teal   { color: #34d399; }
-    .coral  { color: #fb923c; }
+    .purple { color: var(--purple); }
+    .teal   { color: var(--teal); }
+    .coral  { color: var(--coral); }
+
+    /* glitch effect on name */
+    .glitch {
+      position: relative;
+      display: inline-block;
+    }
+
+    .glitch::before, .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+    }
+
+    .glitch::before {
+      color: var(--teal);
+      animation: glitch1 3s infinite;
+      clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+    }
+
+    .glitch::after {
+      color: var(--coral);
+      animation: glitch2 3s infinite;
+      clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+    }
+
+    @keyframes glitch1 {
+      0%,90%,100% { transform: none; opacity: 0; }
+      92% { transform: translateX(-3px); opacity: 0.7; }
+      94% { transform: translateX(3px); opacity: 0.7; }
+      96% { transform: none; opacity: 0; }
+    }
+
+    @keyframes glitch2 {
+      0%,90%,100% { transform: none; opacity: 0; }
+      93% { transform: translateX(3px); opacity: 0.7; }
+      95% { transform: translateX(-3px); opacity: 0.7; }
+      97% { transform: none; opacity: 0; }
+    }
+
+    .typing-container {
+      font-size: 17px; color: #555;
+      margin-bottom: 1.5rem;
+      height: 26px;
+      animation: fadeUp 0.7s ease 0.2s both;
+    }
+
+    .typing-text {
+      color: var(--purple);
+      border-right: 2px solid var(--purple);
+      animation: blink 0.7s infinite;
+    }
+
+    @keyframes blink { 0%,100% { border-color: var(--purple); } 50% { border-color: transparent; } }
 
     .hero p {
-      font-size: 16px;
-      color: #888;
-      max-width: 500px;
+      font-size: 15px; color: #444;
+      max-width: 460px;
       margin: 0 auto 2.5rem;
       line-height: 1.8;
+      animation: fadeUp 0.7s ease 0.3s both;
     }
 
     .btn-row {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 2.5rem;
+      display: flex; gap: 12px;
+      justify-content: center; flex-wrap: wrap;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.7s ease 0.4s both;
     }
 
     .btn-primary {
-      background: #7c3aed;
-      color: #fff;
-      border: none;
+      background: var(--purple-dark);
+      color: #fff; border: none;
       padding: 12px 28px;
       border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 14px; font-weight: 500;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.25s;
+      position: relative; overflow: hidden;
     }
 
-    .btn-primary:hover { background: #6d28d9; }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+      transform: translate(-50%,-50%);
+      transition: width 0.5s, height 0.5s;
+    }
+
+    .btn-primary:hover { transform: translateY(-3px); background: #6d28d9; box-shadow: 0 8px 25px rgba(124,58,237,0.35); }
+    .btn-primary:hover::before { width: 200px; height: 200px; }
+    .btn-primary:active { transform: translateY(0); }
 
     .btn-secondary {
-      background: transparent;
-      color: #f0f0f0;
-      border: 1px solid #333;
-      padding: 12px 28px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: border-color 0.2s;
+      background: transparent; color: #f0f0f0;
+      border: 1px solid #222;
+      padding: 12px 28px; border-radius: 8px;
+      font-size: 14px; cursor: pointer;
+      transition: all 0.25s;
     }
 
-    .btn-secondary:hover { border-color: #666; }
+    .btn-secondary:hover { border-color: #555; transform: translateY(-3px); }
 
-    .skills-row {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 4rem;
+    .pills {
+      display: flex; gap: 8px;
+      justify-content: center; flex-wrap: wrap;
+      margin-bottom: 5rem;
+      animation: fadeUp 0.7s ease 0.5s both;
     }
 
     .pill {
-      font-size: 13px;
-      font-weight: 500;
-      padding: 5px 16px;
-      border-radius: 999px;
+      font-size: 12px; font-weight: 500;
+      padding: 5px 16px; border-radius: 999px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: default;
     }
 
-    .pill-purple { background: #1e1a3a; color: #a78bfa; border: 1px solid #3c3489; }
-    .pill-teal   { background: #0d2a1f; color: #34d399; border: 1px solid #065f46; }
-    .pill-coral  { background: #2a1a0d; color: #fb923c; border: 1px solid #7c2d12; }
-    .pill-amber  { background: #2a200a; color: #fbbf24; border: 1px solid #78350f; }
-    .pill-pink   { background: #2a0d1a; color: #f472b6; border: 1px solid #831843; }
+    .pill:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
 
-    .section-label {
-      text-align: center;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #444;
-      margin-bottom: 1.5rem;
-    }
+    .p-purple { background:#1a1535; color:var(--purple); border:1px solid #3c3489; }
+    .p-teal   { background:#0a2318; color:var(--teal);   border:1px solid #065f46; }
+    .p-coral  { background:#22140a; color:var(--coral);  border:1px solid #7c2d12; }
+    .p-amber  { background:#221a08; color:var(--amber);  border:1px solid #78350f; }
+    .p-pink   { background:#220a14; color:var(--pink);   border:1px solid #831843; }
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      padding: 0 2rem;
-      margin-bottom: 4rem;
-      max-width: 900px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .card {
-      background: #161616;
-      border: 1px solid #222;
-      border-radius: 12px;
-      padding: 1.25rem;
-      transition: border-color 0.2s;
-    }
-
-    .card:hover { border-color: #444; }
-
-    .card-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      margin-bottom: 12px;
-    }
-
-    .icon-purple { background: #1e1a3a; }
-    .icon-teal   { background: #0d2a1f; }
-    .icon-coral  { background: #2a1a0d; }
-    .icon-amber  { background: #2a200a; }
-
-    .card h3 {
-      font-size: 15px;
-      font-weight: 500;
-      color: #f0f0f0;
-      margin-bottom: 6px;
-    }
-
-    .card p {
-      font-size: 13px;
-      color: #666;
-      line-height: 1.6;
-    }
-
+    /* ── STATS ── */
     .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      padding: 0 2rem;
-      margin-bottom: 4rem;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+      display: flex; justify-content: center;
+      gap: 1.5rem; flex-wrap: wrap;
+      margin-bottom: 5rem; padding: 0 2rem;
+      position: relative; z-index: 2;
     }
 
     .stat {
-      background: #161616;
-      border: 1px solid #222;
-      border-radius: 10px;
-      padding: 1.2rem;
+      text-align: center; padding: 1.5rem 2rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px; min-width: 130px;
+      transition: all 0.3s; cursor: default;
+      position: relative; overflow: hidden;
+    }
+
+    .stat::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(124,58,237,0.05), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+
+    .stat:hover { border-color: var(--purple-dark); transform: translateY(-5px); }
+    .stat:hover::before { opacity: 1; }
+
+    .stat-num { font-size: 30px; font-weight: 600; margin-bottom: 4px; }
+    .stat-label { font-size: 11px; color: #333; }
+
+    /* ── SECTION ── */
+    .sec-label {
       text-align: center;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: #2a2a2a; margin-bottom: 1.5rem;
+      position: relative; z-index: 2;
     }
 
-    .stat-num {
-      font-size: 28px;
-      font-weight: 600;
-      margin-bottom: 4px;
+    /* ── PROJECT CARDS ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+      gap: 12px; padding: 0 2rem;
+      margin-bottom: 5rem;
+      max-width: 900px; margin-left: auto; margin-right: auto;
+      position: relative; z-index: 2;
     }
 
-    .stat-label {
-      font-size: 11px;
-      color: #555;
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.5rem;
+      transition: all 0.3s; cursor: default;
+      position: relative; overflow: hidden;
     }
 
-    .cta {
-      margin: 0 2rem 3rem;
-      background: #1e1a3a;
-      border: 1px solid #3c3489;
+    .card::after {
+      content: '';
+      position: absolute; inset: 0;
+      opacity: 0; transition: opacity 0.4s;
+      border-radius: 14px;
+    }
+
+    .c-purple::after { background: radial-gradient(circle at 20% 20%, rgba(124,58,237,0.12), transparent 65%); }
+    .c-teal::after   { background: radial-gradient(circle at 20% 20%, rgba(52,211,153,0.09), transparent 65%); }
+    .c-coral::after  { background: radial-gradient(circle at 20% 20%, rgba(251,146,60,0.09), transparent 65%); }
+    .c-amber::after  { background: radial-gradient(circle at 20% 20%, rgba(251,191,36,0.09), transparent 65%); }
+
+    .card:hover { transform: translateY(-6px) rotate(0.5deg); border-color: #2a2a2a; }
+    .card:hover::after { opacity: 1; }
+
+    .card-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 14px;
+    }
+
+    .i-purple { background: #1a1535; }
+    .i-teal   { background: #0a2318; }
+    .i-coral  { background: #22140a; }
+    .i-amber  { background: #221a08; }
+
+    .card h3 { font-size: 15px; font-weight: 500; color: #f0f0f0; margin-bottom: 6px; }
+    .card p  { font-size: 13px; color: #444; line-height: 1.6; }
+
+    /* ── SKILL BARS ── */
+    .skills-wrap {
+      max-width: 680px; margin: 0 auto 5rem;
+      padding: 0 2rem;
+      position: relative; z-index: 2;
+    }
+
+    .skill-row { margin-bottom: 1.4rem; }
+
+    .skill-top {
+      display: flex; justify-content: space-between;
+      margin-bottom: 7px; font-size: 13px;
+    }
+
+    .skill-name { color: #888; }
+    .skill-pct  { color: #333; font-size: 12px; }
+
+    .bar-bg {
+      height: 4px; background: #111;
+      border-radius: 999px; overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%; width: 0;
+      border-radius: 999px;
+      transition: width 1.6s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ── CONTACT FORM ── */
+    .contact-wrap {
+      max-width: 600px; margin: 0 auto 5rem;
+      padding: 0 2rem;
+      position: relative; z-index: 2;
+    }
+
+    .form-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 3rem 2rem;
-      text-align: center;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
+      padding: 2.5rem;
+      transition: border-color 0.3s;
     }
 
-    .cta h2 {
-      font-size: 26px;
-      font-weight: 600;
-      color: #a78bfa;
-      margin-bottom: 10px;
+    .form-card:hover { border-color: #2d2060; }
+
+    .form-title {
+      font-size: 22px; font-weight: 600;
+      color: var(--purple); margin-bottom: 6px;
     }
 
-    .cta p {
-      font-size: 14px;
-      color: #7c6fd0;
-      margin-bottom: 2rem;
+    .form-sub {
+      font-size: 13px; color: #444;
+      margin-bottom: 2rem; line-height: 1.6;
     }
 
+    .form-group { margin-bottom: 1.2rem; }
+
+    .form-group label {
+      display: block; font-size: 12px;
+      color: #555; margin-bottom: 6px;
+      letter-spacing: 0.03em;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%; background: #0a0a0a;
+      border: 1px solid #1e1e1e;
+      border-radius: 8px; padding: 10px 14px;
+      color: #f0f0f0; font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      resize: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--purple-dark);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+    }
+
+    .form-group textarea { height: 120px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .form-submit {
+      width: 100%; padding: 12px;
+      background: var(--purple-dark); color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 500;
+      cursor: pointer; margin-top: 0.5rem;
+      transition: all 0.25s;
+      position: relative; overflow: hidden;
+    }
+
+    .form-submit:hover { background: #6d28d9; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.3); }
+    .form-submit:active { transform: translateY(0); }
+
+    .form-success {
+      display: none;
+      text-align: center; padding: 2rem;
+      color: var(--teal); font-size: 15px;
+    }
+
+    .form-success .checkmark {
+      font-size: 48px; display: block;
+      margin-bottom: 1rem;
+      animation: pop 0.4s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0); }
+      70% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    /* ── FOOTER ── */
     footer {
-      text-align: center;
-      padding: 1.5rem;
-      border-top: 1px solid #1a1a1a;
-      font-size: 12px;
-      color: #333;
+      text-align: center; padding: 2rem;
+      border-top: 1px solid #0f0f0f;
+      font-size: 12px; color: #222;
+      position: relative; z-index: 2;
     }
+
+    /* ── REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+    @keyframes fadeDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:none; } }
 
     @media (max-width: 600px) {
-      .hero h1 { font-size: 32px; }
-      .stats { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 36px; }
+      .form-row { grid-template-columns: 1fr; }
+      .stats { gap: 0.8rem; }
     }
   </style>
 </head>
 <body>
+
+  <canvas id="particleCanvas"></canvas>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
 
   <nav>
     <div class="nav-logo">sarthak.dev</div>
     <div class="nav-links">
       <a href="#about">about</a>
       <a href="#projects">projects</a>
+      <a href="#skills">skills</a>
       <a href="#contact">contact</a>
     </div>
   </nav>
 
+  <!-- HERO -->
   <section class="hero" id="about">
     <div class="badge">
-      📍 Bengaluru, India
+      <div class="status-dot"></div>
+      available for opportunities
     </div>
     <h1>
-      Hi, I'm <span class="purple">Sarthak</span><br>
+      Hi, I'm <span class="purple glitch" data-text="Sarthak">Sarthak</span><br>
       I <span class="teal">build</span> things &<br>
       <span class="coral">break</span> them too
     </h1>
+    <div class="typing-container">
+      I'm a <span class="typing-text" id="typingEl"></span>
+    </div>
     <p>CSE student on a mission to go from zero to 20-30 LPA. I love coding, debugging at midnight, and pushing to GitHub.</p>
     <div class="btn-row">
-      <a href="https://github.com/sarthakbuild987-del" target="_blank">
+      <a href="https://github.com/sarthakbuild987-del" target="_blank" style="text-decoration:none;">
         <button class="btn-primary">view my GitHub →</button>
       </a>
-      <a href="mailto:sarthak.build987@gmail.com">
+      <a href="#contact" style="text-decoration:none;">
         <button class="btn-secondary">say hello</button>
       </a>
     </div>
-    <div class="skills-row">
-      <span class="pill pill-purple">Python</span>
-      <span class="pill pill-teal">Git & GitHub</span>
-      <span class="pill pill-coral">HTML</span>
-      <span class="pill pill-amber">DSA</span>
-      <span class="pill pill-pink">VS Code</span>
+    <div class="pills">
+      <span class="pill p-purple">Python</span>
+      <span class="pill p-teal">Git & GitHub</span>
+      <span class="pill p-coral">HTML</span>
+      <span class="pill p-amber">DSA</span>
+      <span class="pill p-pink">VS Code</span>
     </div>
   </section>
 
-  <div class="section-label">what i'm working on</div>
-  <div class="cards" id="projects">
-    <div class="card">
-      <div class="card-icon icon-purple">💻</div>
-      <h3>DSA grind</h3>
-      <p>Solving LeetCode daily. Currently on arrays and hashmaps.</p>
-    </div>
-    <div class="card">
-      <div class="card-icon icon-teal">🛠️</div>
-      <h3>mini projects</h3>
-      <p>Building small CLI tools and pushing them all to GitHub.</p>
-    </div>
-    <div class="card">
-      <div class="card-icon icon-coral">🐙</div>
-      <h3>open source</h3>
-      <p>Learning how to contribute to real projects step by step.</p>
-    </div>
-    <div class="card">
-      <div class="card-icon icon-amber">🚀</div>
-      <h3>the goal</h3>
-      <p>20-30 LPA off-campus by Year 4. Started before college.</p>
+  <!-- STATS -->
+  <div class="stats reveal">
+    <div class="stat"><div class="stat-num" style="color:var(--purple)" id="s1">0</div><div class="stat-label">GitHub projects</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--teal)"   id="s2">0</div><div class="stat-label">problems solved</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--coral)">Day 1</div><div class="stat-label">of the journey</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--amber)">2026</div><div class="stat-label">college start</div></div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="sec-label reveal" id="projects">what i'm building</div>
+  <div class="cards reveal">
+    <div class="card c-purple"><div class="card-icon i-purple">💻</div><h3>DSA grind</h3><p>Solving LeetCode daily. Arrays, hashmaps, and two pointers.</p></div>
+    <div class="card c-teal">  <div class="card-icon i-teal">🛠️</div><h3>mini projects</h3><p>CLI tools, web pages — everything goes on GitHub.</p></div>
+    <div class="card c-coral"> <div class="card-icon i-coral">🐙</div><h3>open source</h3><p>Learning to contribute to real projects step by step.</p></div>
+    <div class="card c-amber"> <div class="card-icon i-amber">🚀</div><h3>the goal</h3><p>20-30 LPA off-campus by Year 4. Started before college.</p></div>
+  </div>
+
+  <!-- SKILLS -->
+  <div class="sec-label reveal" id="skills">skill progress</div>
+  <div class="skills-wrap reveal" id="skillsWrap">
+    <div class="skill-row"><div class="skill-top"><span class="skill-name">Python</span><span class="skill-pct">40%</span></div><div class="bar-bg"><div class="bar-fill" style="background:var(--purple)" data-w="40"></div></div></div>
+    <div class="skill-row"><div class="skill-top"><span class="skill-name">HTML & CSS</span><span class="skill-pct">55%</span></div><div class="bar-bg"><div class="bar-fill" style="background:var(--teal)" data-w="55"></div></div></div>
+    <div class="skill-row"><div class="skill-top"><span class="skill-name">Git & GitHub</span><span class="skill-pct">60%</span></div><div class="bar-bg"><div class="bar-fill" style="background:var(--coral)" data-w="60"></div></div></div>
+    <div class="skill-row"><div class="skill-top"><span class="skill-name">DSA</span><span class="skill-pct">20%</span></div><div class="bar-bg"><div class="bar-fill" style="background:var(--amber)" data-w="20"></div></div></div>
+    <div class="skill-row"><div class="skill-top"><span class="skill-name">Problem solving</span><span class="skill-pct">45%</span></div><div class="bar-bg"><div class="bar-fill" style="background:var(--pink)" data-w="45"></div></div></div>
+  </div>
+
+  <!-- CONTACT FORM -->
+  <div class="sec-label reveal" id="contact">get in touch</div>
+  <div class="contact-wrap reveal">
+    <div class="form-card">
+      <div id="formContent">
+        <div class="form-title">let's connect</div>
+        <div class="form-sub">Got a question, project idea, or just want to say hi? Drop a message below!</div>
+        <div class="form-row">
+          <div class="form-group"><label>your name</label><input type="text" id="fname" placeholder="Rahul Sharma" /></div>
+          <div class="form-group"><label>your email</label><input type="email" id="femail" placeholder="rahul@gmail.com" /></div>
+        </div>
+        <div class="form-group"><label>subject</label><input type="text" id="fsubject" placeholder="Let's collaborate!" /></div>
+        <div class="form-group"><label>message</label><textarea id="fmessage" placeholder="Hey Sarthak, I saw your portfolio and..."></textarea></div>
+        <button class="form-submit" id="formBtn" onclick="submitForm()">send message →</button>
+      </div>
+      <div class="form-success" id="formSuccess">
+        <span class="checkmark">✅</span>
+        <div style="font-weight:500; margin-bottom:8px;">message sent!</div>
+        <div style="font-size:13px; color:#444;">Thanks for reaching out. I'll get back to you soon!</div>
+      </div>
     </div>
   </div>
 
-  <div class="section-label">my journey so far</div>
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-num" style="color:#a78bfa;">3+</div>
-      <div class="stat-label">projects on GitHub</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" style="color:#34d399;">20+</div>
-      <div class="stat-label">problems solved</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" style="color:#fb923c;">Day 1</div>
-      <div class="stat-label">of the journey</div>
-    </div>
-  </div>
+  <footer>built with curiosity by sarthak dwivedi — future software engineer</footer>
 
-  <div class="cta" id="contact">
-    <h2>want to connect?</h2>
-    <p>Always happy to talk code, projects, or the road to 20-30 LPA.</p>
-    <a href="mailto:sarthak.build987@gmail.com">
-      <button class="btn-primary">let's connect →</button>
-    </a>
-  </div>
+  <script>
+    /* ── CUSTOM CURSOR ── */
+    const cur = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
 
-  <footer>
-    built with curiosity by sarthak dwivedi — future software engineer
-  </footer>
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cur.style.left = mx + 'px';
+      cur.style.top  = my + 'px';
+    });
 
+    function animRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      requestAnimationFrame(animRing);
+    }
+    animRing();
+
+    document.querySelectorAll('a, button, .pill, .card, .stat').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cur.style.width = '20px'; cur.style.height = '20px';
+        ring.style.width = '50px'; ring.style.height = '50px';
+      });
+      el.addEventListener('mouseleave', () => {
+        cur.style.width = '12px'; cur.style.height = '12px';
+        ring.style.width = '36px'; ring.style.height = '36px';
+      });
+    });
+
+    /* ── PARTICLES ── */
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    const colors = ['#a78bfa','#34d399','#fb923c','#f472b6','#fbbf24'];
+    let W, H, particles = [];
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.r = Math.random() * 1.5 + 0.5;
+        this.vx = (Math.random() - 0.5) * 0.3;
+        this.vy = (Math.random() - 0.5) * 0.3;
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+        this.alpha = Math.random() * 0.3 + 0.05;
+      }
+      update() {
+        this.x += this.vx; this.y += this.vy;
+        if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = this.alpha;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+    function drawConnections() {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < 100) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = '#a78bfa';
+            ctx.globalAlpha = (1 - dist/100) * 0.06;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
+        }
+      }
+    }
+
+    function animParticles() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => { p.update(); p.draw(); });
+      drawConnections();
+      requestAnimationFrame(animParticles);
+    }
+    animParticles();
+
+    /* ── TYPING ── */
+    const words = ['CSE Student 🎓','Problem Solver 🧩','Future Engineer 🔧','GitHub Pusher 🐙','LeetCode Grinder 💪','20-30 LPA Chaser 🚀'];
+    let wi = 0, ci = 0, del = false;
+    const tel = document.getElementById('typingEl');
+
+    function type() {
+      const w = words[wi];
+      if (!del) {
+        tel.textContent = w.slice(0, ++ci);
+        if (ci === w.length) { del = true; setTimeout(type, 1800); return; }
+      } else {
+        tel.textContent = w.slice(0, --ci);
+        if (ci === 0) { del = false; wi = (wi+1) % words.length; }
+      }
+      setTimeout(type, del ? 50 : 90);
+    }
+    type();
+
+    /* ── SCROLL REVEAL ── */
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          e.target.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(r => obs.observe(r));
+
+    /* ── COUNT UP ── */
+    function countUp(el, target, dur) {
+      let v = 0, step = target / (dur/16);
+      const t = setInterval(() => {
+        v = Math.min(v + step, target);
+        el.textContent = Math.floor(v) + '+';
+        if (v >= target) clearInterval(t);
+      }, 16);
+    }
+
+    const statsObs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        countUp(document.getElementById('s1'), 3, 1000);
+        countUp(document.getElementById('s2'), 20, 1300);
+        statsObs.disconnect();
+      }
+    }, { threshold: 0.3 });
+    statsObs.observe(document.querySelector('.stats'));
+
+    /* ── NAV SMOOTH SCROLL ── */
+    document.querySelectorAll('.nav-links a, a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const href = a.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          e.preventDefault();
+          const target = document.querySelector(href);
+          if (target) target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    /* ── CONTACT FORM ── */
+    function submitForm() {
+      const name    = document.getElementById('fname').value.trim();
+      const email   = document.getElementById('femail').value.trim();
+      const message = document.getElementById('fmessage').value.trim();
+
+      if (!name || !email || !message) {
+        document.getElementById('formBtn').textContent = 'please fill all fields!';
+        setTimeout(() => { document.getElementById('formBtn').textContent = 'send message →'; }, 2000);
+        return;
+      }
+
+      const btn = document.getElementById('formBtn');
+      btn.textContent = 'sending...';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        document.getElementById('formContent').style.display = 'none';
+        document.getElementById('formSuccess').style.display = 'block';
+      }, 1200);
+    }
+  </script>
 </body>
 </html>
